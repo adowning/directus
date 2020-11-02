@@ -1,0 +1,192 @@
+"""
+@model(delete: false)
+"""
+type Warehouse implements Address {
+  _id: GraphbackObjectID!
+  name: String
+  address1: String
+  address2: String
+  city: String
+  postcode: Int
+  lat: Float
+  long: Float
+  """
+  @oneToMany(field: "warehouse")
+  """
+  services: [Service]
+
+  """
+  @oneToMany(field: "warehouse")
+  """
+  actions: [EmployeeAction]
+}
+
+"""
+@model(delete: false)
+"""
+type Employee {
+  _id: GraphbackObjectID!
+  firstName: String
+  lastName: String
+  email: String
+  username: String!
+  address1: String
+  address2: String
+  city: String
+  postcode: Int
+  dateOfBirth: GraphbackDateTime
+  canDeliver: Boolean
+  actionsCompleted: Int
+  actionsActive: Int
+  active: Boolean
+
+  """
+  @oneToMany(field: 'employee')
+  """
+  actions: [EmployeeAction]
+}
+
+"""
+@model(delete: false)
+"""
+type Recipient implements Address {
+  _id: GraphbackObjectID!
+  firstName: String
+  lastName: String
+  phone: String
+  address1: String
+  address2: String
+  postcode: Int
+  city: String
+  lat: Float
+  long: Float
+  actionsCompleted: Int
+  deliveryDays: String
+  """
+  Comma separated list of preferrend services labels.
+  Easier to create employee actions when knowing what one really needs.
+  """
+  prefferedServices: String
+  """
+  @oneToMany(field: 'recipient')
+  """
+  actions: [EmployeeAction]
+}
+
+"""
+Represents action that is assigned to employee
+@model
+"""
+type EmployeeAction {
+  _id: GraphbackObjectID!
+  title: String!
+  description: String
+  status: ActionStatus
+  assignedAt: GraphbackDateTime
+  completedAt: GraphbackDateTime
+  _createdAt: GraphbackDateTime
+
+  """
+  @manyToOne(field: 'actions')
+  """
+  employee: Employee
+
+  """
+  @manyToOne(field: 'actions')
+  """
+  recipient: Recipient
+
+  """
+  @manyToOne(field: 'actions')
+  """
+  warehouse: Warehouse
+
+  """
+  @oneToMany(field: 'employeeAction')
+  """
+  services: [EmployeeActionService]
+}
+
+"""
+Represents a join model between a employee action and service
+@model(create: true, update: false, delete: false, subCreate: false, subUpdate: false, subDelete: false)
+"""
+type EmployeeActionService {
+  _id: GraphbackObjectID!
+}
+
+interface Address {
+  address1: String
+  address2: String
+  city: String
+  postcode: Int
+  lat: Float
+  long: Float
+}
+
+"""
+@model(delete: false)
+"""
+type Service {
+  _id: GraphbackObjectID!
+  label: String!
+  description: String
+  """
+  @oneToMany(field: 'service')
+  """
+  employeeActionServices: [EmployeeActionService]
+}
+
+"""
+@model
+"""
+type DailyActionPlan {
+  _id: GraphbackObjectID!
+  owner: String
+  date: GraphbackDateTime
+  numberOfCasesCreated: Int
+  numberOfEmployeesAssigned: Int
+  numberOfRecipients: Int
+}
+
+enum ActionStatus {
+  CREATED
+  ASSIGNED
+  COMPLETED
+}
+
+scalar GraphbackDateTime
+scalar GraphbackObjectID
+
+## Custom logic
+type Mutation {
+  """
+  Automatically create actions for the day of the month specified
+  """
+  assignEmployees: DailyActionPlan
+}
+
+"""
+@model(delete: false)
+"""
+type OTMessage   {
+  _id: GraphbackObjectID!
+  type: String
+  t: String
+  ts: String
+  tid: String
+  desc: String
+  batt: Float
+  acc: Float
+  lat: Float
+  long: Float
+#   """
+#   @oneToMany(field: "warehouse")
+#   """
+#   services: [Service]
+
+#   """
+#   @oneToMany(field: "warehouse")
+#   """
+#   actions: [EmployeeAction]
+}
